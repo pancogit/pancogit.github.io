@@ -32,3 +32,11 @@ To see available scripts, look for
 ### GitHub pages
 
 Application is hosted on [GitHub pages](https://pancogit.github.io/).
+
+To deploy react app on GitHub Pages, build the app for production to the `build` folder. Run the following command:
+
+```shell
+npm run deploy
+```
+
+It will first call automatically predeploy script (_npm run build_) from _package.json_ file to create `build` folder for production and then it will run _npm run deploy_ which will deploy build code from `build` folder to the **gh-pages** branch of the repository.
