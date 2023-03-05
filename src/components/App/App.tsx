@@ -1,8 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../logo.svg";
-import "./App.css";
+import LoadingScreen from "../LoadingScreen/LoadingScreen";
 
 function App() {
+    // flags when loading screen is loaded and when to close
+    // the loading screen with small transition
+    const [screenIsLoaded, setScreenIsLoaded] = useState(false);
+    const [closeLoadScreen, setCloseLoadScreen] = useState(false);
+
+    // when screen is loaded, wait a little more time and then
+    // close the screen component to see opacity transition
+    // of the closed screen
+    useEffect(() => {
+        if (screenIsLoaded) {
+            setTimeout(() => {
+                setCloseLoadScreen(true);
+            }, 1000);
+        }
+    });
+
     return (
         <div className="App">
             <header className="App-header">
@@ -18,6 +34,10 @@ function App() {
                 >
                     Learn React
                 </a>
+
+                {!closeLoadScreen && (
+                    <LoadingScreen setScreenIsLoaded={setScreenIsLoaded} />
+                )}
             </header>
         </div>
     );

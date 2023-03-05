@@ -1,0 +1,37 @@
+.loading-screen {
+    // spread screen wrapper around whole screen
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    // center loader on the screen both vertically and horizontally
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // different background colors and fallbacks
+    background-color: #282c34;
+    background-color: #626262;
+    background-color: #4a487d;
+    background-color: #7d6848;
+
+    z-index: 1000;
+
+    // fade away effect with zero opacity and small transition
+    &__fade-away {
+        opacity: 0;
+        transition: 1s;
+    }
+}
+
+// body background color should be the same as loading screen
+// to not see the difference when scrolling to the edges of screen
+// different background colors and fallbacks
+body {
+    background-color: #282c34;
+    background-color: #626262;
+    background-color: #4a487d;
+    background-color: #7d6848;
+}

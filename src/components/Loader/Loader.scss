@@ -1,0 +1,121 @@
+$border-radius-loader: 1.4rem;
+$border-radius-background: $border-radius-loader - 0.2rem;
+
+.loader {
+    display: flex;
+
+    // flat color as fallback
+    background-color: #fdcb42;
+
+    // set gradient color with fallback background
+    background: rgb(194, 116, 36);
+    background: linear-gradient(
+        0deg,
+        rgba(194, 116, 36, 1) 0%,
+        rgba(192, 110, 21, 1) 32%,
+        rgba(237, 150, 19, 1) 65%,
+        rgba(253, 169, 25, 1) 81%,
+        rgba(254, 203, 69, 1) 100%
+    );
+
+    border-radius: $border-radius-loader;
+    height: 3rem;
+    width: 80%;
+
+    // add small shadow
+    box-shadow: 0px 5px 3px 1px #484848bd;
+
+    &__inner {
+        display: flex;
+        margin: 0.5rem;
+
+        // positioning container for inner childs
+        position: relative;
+
+        // spread flex item to the full width
+        flex: 1;
+    }
+
+    &__progress {
+        // align progress to the left
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+
+        // calculate progress bar by distance from the right side
+        // subtract full width (100%) with actual percentage
+        // to get level of progress bar in percentages
+        // right = 0% for full width, right = 100% for empty progress
+        right: 100% - 76%;
+
+        // flat color as fallback
+        background-color: #9bdd42;
+
+        // set gradient color with fallback background
+        background: rgb(63, 119, 33);
+        background: linear-gradient(
+            0deg,
+            rgba(63, 119, 33, 1) 0%,
+            rgba(53, 130, 35, 1) 26%,
+            rgba(115, 196, 47, 1) 51%,
+            rgba(176, 230, 89, 1) 69%,
+            rgba(218, 243, 146, 1) 81%,
+            rgba(202, 233, 132, 1) 91%,
+            rgba(94, 218, 96, 1) 100%
+        );
+
+        border-radius: $border-radius-background;
+
+        // add small shadow to the outside, reversed
+        // to the background inset
+        box-shadow: 0px 0px 3px 0px #09451b;
+    }
+
+    &__text {
+        // center text by absolute positioning
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        // center text inside box on both axis
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 1.45rem;
+        font-weight: bold;
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+            sans-serif;
+
+        // add borders with given color around each text letter
+        -webkit-text-stroke: 1.1px #22712a;
+    }
+
+    &__background {
+        flex: 1;
+        margin: 0.1rem;
+
+        // flat color as fallback
+        background-color: #a77336;
+
+        // set gradient color with fallback background
+        background: rgb(155, 103, 43);
+        background: linear-gradient(
+            0deg,
+            rgb(112 74 30) 0%,
+            rgb(154 105 49) 32%,
+            rgb(176, 122, 60) 51%,
+            rgb(170, 117, 55) 69%,
+            rgb(159, 107, 48) 81%,
+            rgb(122 74 26) 100%
+        );
+
+        border-radius: $border-radius-background;
+
+        // add small shadow to the inside with inset
+        box-shadow: inset 0px 0px 5px 0px #3c3c3c;
+    }
+}
