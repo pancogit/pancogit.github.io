@@ -1,6 +1,6 @@
 .loading-screen {
-    // spread screen wrapper around whole screen
-    position: absolute;
+    // spread screen wrapper around whole screen and fix it
+    position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
@@ -17,21 +17,20 @@
     background-color: #4a487d;
     background-color: #7d6848;
 
+    // background gradient for effect
+    background: rgb(125, 104, 72);
+    background: radial-gradient(
+        circle,
+        rgba(125, 104, 72, 1) 0%,
+        rgba(74, 72, 125, 1) 90%
+    );
+
+    // use high stacking content
     z-index: 1000;
 
     // fade away effect with zero opacity and small transition
     &__fade-away {
         opacity: 0;
-        transition: 1s;
+        transition: 0.6s;
     }
-}
-
-// body background color should be the same as loading screen
-// to not see the difference when scrolling to the edges of screen
-// different background colors and fallbacks
-body {
-    background-color: #282c34;
-    background-color: #626262;
-    background-color: #4a487d;
-    background-color: #7d6848;
 }

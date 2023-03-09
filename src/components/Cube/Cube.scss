@@ -1,0 +1,139 @@
+@use "sass:math";
+
+$cube-size: 17rem;
+$cube-size-half: math.div($cube-size, 2);
+$rotation-side: 90deg;
+
+$animation-time: 2.5s;
+
+// 3d axis are used as mathematical descartes system
+// x axis is horizontally, y axis is vertically and
+// z axis is in front of screen (orthogonal to the screen)
+// (0, 0) (x, y) is on the screen top left corner (different
+// from mathematics where (0, 0) is on bottom left corner
+
+.cube {
+    // all cube sides are relative to the cube
+    position: relative;
+
+    width: $cube-size;
+    height: $cube-size;
+
+    // all children elements (sides of cube) are positioned
+    // in 3d space with given preserving
+    // otherwise, if flag is used, then all child elements
+    // are lying on 2d space, on the cube wrapper plane itself
+    // when using 3d preserving then sides of cube can be
+    // transformed in 3d space using standard css transformations
+    transform-style: preserve-3d;
+
+    // animate cube rotation and fade in at the same time
+    animation: cube-rotate-fade-in 1 $animation-time linear;
+
+    // set cube as group of squares
+    &__front,
+    &__back,
+    &__left,
+    &__right,
+    &__top,
+    &__bottom {
+        position: absolute;
+
+        width: $cube-size;
+        height: $cube-size;
+
+        // set half visible sides to see through them while rotating
+        opacity: 0.5;
+
+        // animate cube sides with opacity to show sides slowly
+        // use the same timing as cube rotation animation
+        animation: cube-side-opacity 1 $animation-time linear;
+
+        // remove it when implementing each side of cube
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        font-family: cursive;
+        color: white;
+        -webkit-text-stroke: 1px #987c7c;
+    }
+
+    // front side stays where it is, it's leading side
+    // no transformation at all is needed
+    // front is lying on the cube wrapper side
+    // other sides are rotating and translating
+    // around front side
+    &__front {
+        background-color: blue;
+    }
+
+    // move back side to the "back" by moving backwards
+    // to the z axis (far from the screen)
+    // move side backwards by full cube size to allow
+    // other sides to lay on it
+    &__back {
+        transform: translateZ(-$cube-size);
+        background-color: yellow;
+    }
+
+    // move left side to the "left" by rotating on y axis
+    // vertically and then moving left on the x axis horizontally
+    // also move element on z axis to lay on other sides
+    &__left {
+        background-color: black;
+        transform: rotateY($rotation-side) translateX($cube-size-half)
+            translateZ(-$cube-size-half);
+    }
+
+    // move left side to the "right" by rotating on y axis
+    // vertically and then moving right on the x axis horizontally
+    // also move element on z axis to lay on other sides
+    &__right {
+        background-color: white;
+        transform: rotateY($rotation-side) translateX($cube-size-half)
+            translateZ($cube-size-half);
+    }
+
+    // move top side to the "top" by rotating on x axis
+    // horizontally and then moving up on the y axis vertically
+    // also move element on z axis to lay on the back side
+    &__top {
+        background-color: green;
+        transform: rotateX($rotation-side) translateY(-$cube-size-half)
+            translateZ($cube-size-half);
+    }
+
+    // move bottom side to the "bottom" by rotating on x axis
+    // horizontally and then moving down on the y axis vertically
+    // also move element on z axis to lay on the back side
+    &__bottom {
+        background-color: aqua;
+        transform: rotateX($rotation-side) translateY(-$cube-size-half)
+            translateZ(-$cube-size-half);
+    }
+}
+
+// animation of cube rotation and fade in at the same time
+// scale cube from the very small to the normal size
+// use 3d animations to animate all three axis (x, y, z)
+@keyframes cube-rotate-fade-in {
+    0% {
+        transform: rotate3d(1, 1, 1, 0deg) scale3d(0, 0, 0);
+    }
+
+    100% {
+        transform: rotate3d(1, 1, 1, 360deg) scale3d(1, 1, 1);
+    }
+}
+
+// animate each side of cube with opacity to slowly show cube
+@keyframes cube-side-opacity {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
+}

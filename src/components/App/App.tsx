@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import logo from "../../logo.svg";
+import { useEffect, useState } from "react";
+import Cube from "../Cube/Cube";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
 
 function App() {
@@ -8,37 +8,40 @@ function App() {
     const [screenIsLoaded, setScreenIsLoaded] = useState(false);
     const [closeLoadScreen, setCloseLoadScreen] = useState(false);
 
+    // flag for cube to render after quick time when loader finish loading
+    // don't wait loader to finish full opacity animation
+    const [renderCube, setRenderCube] = useState(false);
+
     // when screen is loaded, wait a little more time and then
     // close the screen component to see opacity transition
     // of the closed screen
+    // also render cube after quick time
     useEffect(() => {
         if (screenIsLoaded) {
             setTimeout(() => {
                 setCloseLoadScreen(true);
-            }, 1000);
+            }, 600);
+
+            setTimeout(() => {
+                setRenderCube(true);
+            }, 300);
         }
     });
 
     return (
         <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
+            {!closeLoadScreen && (
+                <LoadingScreen setScreenIsLoaded={setScreenIsLoaded} />
+            )}
 
-                {!closeLoadScreen && (
-                    <LoadingScreen setScreenIsLoaded={setScreenIsLoaded} />
-                )}
-            </header>
+            {/* render cube after loading screen disappears */}
+            {/* closeLoadScreen && <Cube /> */}
+
+            {/* or render cube immediately after loading screen reach 100% */}
+            {/* screenIsLoaded && <Cube /> */}
+
+            {/* or render cube after quick time before loading screen disappears */}
+            {renderCube && <Cube />}
         </div>
     );
 }

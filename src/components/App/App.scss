@@ -1,0 +1,49 @@
+.App {
+    // center all elements inside in the center of viewport
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    // set 100% view height, full view port height
+    // content inside will be center in the middle of
+    // screen both vertically and horizontally
+    min-height: 100vh;
+}
+
+body {
+    // show background image to cover whole screen
+    // and to see whole image properly
+    //background-image: url("../../../public/background.svg");
+    background-size: cover;
+    background-position-x: center;
+    background-position-y: bottom;
+
+    // repeat image on x axis, because it will
+    // animate through horizontal moving
+    background-repeat: repeat-x;
+
+    // uncomment background-image when it's ready
+    // and then remove background-color
+    background-color: #7d6848;
+
+    // do animation of background image on x axis
+    // to do objects moving
+    animation-name: move-background;
+    animation-duration: 10s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+// move background image on x axis horizontally
+// to show effect of constantly moving
+// move to the 100% viewport width (full width
+// or the screen)
+@keyframes move-background {
+    0% {
+        background-position-x: 0;
+    }
+
+    100% {
+        background-position-x: -100vw;
+    }
+}
