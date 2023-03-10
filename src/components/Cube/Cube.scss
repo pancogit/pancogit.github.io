@@ -201,33 +201,3 @@ $animation-time: 2.5s;
         opacity: 0.5;
     }
 }
-
-// to show current cube side on the whole screen use:
-// .App
-//   remove display: flex, use block instead
-// .cube
-//   do nothing, keep relative positioning to set
-//   children (sides of cube) as absolute positioned
-//   sides to stack on the screen
-// .cube__front / back / ...
-//   for cube sides use absolute positioning relative
-//   to the cube wrapper itself and stack cube sides
-//   on the front screen with absolute positioning
-//   use maximum height and width of full viewport size:
-//     min-height: 100vh;
-//     min-width: 100vw;
-//
-// summary:
-// .App -> remove display: flex
-// .cube__front / back / ... -> min-height: 100vh, min-width: 100vw
-//
-// cube sides will be resized to the whole screen size of full
-// viewport width and height, but offsets of translation will stays
-// the same which will create cube in the middle with fixed
-// size and other hanging sides around cube will be visible
-// translation to the bigger cube is not possible because
-// cube sizes are changing constantly on zoom-in / zoom-out
-// instead use fade out very fast when cube is moved to
-// return back to the original small size and then do rotation
-// from that small size and in that way cube scaling from
-// large to small will not be visible
