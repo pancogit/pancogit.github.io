@@ -13,11 +13,26 @@ $animation-time: 2.5s;
 // from mathematics where (0, 0) is on bottom left corner
 
 .cube {
-    // all cube sides are relative to the cube
-    position: relative;
-
     width: $cube-size;
     height: $cube-size;
+
+    // center cube on screen with absolute positioning
+    // first center top left corner on the screen center
+    // then center cube by moving it left and up (top)
+    // by its half width / height to center it completely
+    // use absolute positioning instead of flexbox to
+    // easily move cube on the screen with animations
+    // and smooth transitions
+    // all cube sides are relative to the cube
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate3d(
+        -$cube-size-half,
+        -$cube-size-half,
+        -$cube-size-half
+    );
 
     // all children elements (sides of cube) are positioned
     // in 3d space with given preserving
@@ -124,12 +139,6 @@ $animation-time: 2.5s;
     }
 
     &__side {
-        // hide all other sides of cube which are not in fullscreen
-        // to make transition to / from fullscreen smoother
-        &--hide {
-            visibility: hidden;
-        }
-
         // add class modifier for opacity fade in effect
         // for current cube side in the viewport
         &--opacity-fade-in {
@@ -147,11 +156,19 @@ $animation-time: 2.5s;
             width: 100vw;
             height: 100vh;
             position: absolute;
-            top: 0;
-            left: 0;
 
-            // transition only size of the cube, width and height
-            transition: width 1s ease-in-out, height 1s ease-in-out;
+            // because top and left coordinates must be set dynamically
+            // in order to make smooth transition for cube side from
+            // screen center to the fullscreen, then those inline
+            // coordinates will override given class coordinates
+            // use !important to override css inline coordinates
+            top: 0 !important;
+            left: 0 !important;
+
+            // transition size of the cube, width and height and
+            // cube coordinates, top and left
+            transition: width 1s ease-in-out, height 1s ease-in-out,
+                top 1s ease-in-out, left 1s ease-in-out;
         }
     }
 }
@@ -159,13 +176,18 @@ $animation-time: 2.5s;
 // animation of cube rotation and fade in at the same time
 // scale cube from the very small to the normal size
 // use 3d animations to animate all three axis (x, y, z)
+// also translate in 3d all 3 cube dimensions by half of its
+// size in negative to center cube in the screen center of the
+// apsolute positioning cube wrapper
 @keyframes cube-rotate-fade-in {
     0% {
-        transform: rotate3d(1, 1, 1, 0deg) scale3d(0, 0, 0);
+        transform: rotate3d(1, 1, 1, 0deg) scale3d(0, 0, 0)
+            translate3d(-$cube-size-half, -$cube-size-half, -$cube-size-half);
     }
 
     100% {
-        transform: rotate3d(1, 1, 1, 360deg) scale3d(1, 1, 1);
+        transform: rotate3d(1, 1, 1, 360deg) scale3d(1, 1, 1)
+            translate3d(-$cube-size-half, -$cube-size-half, -$cube-size-half);
     }
 }
 

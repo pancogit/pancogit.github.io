@@ -1,20 +1,10 @@
 @use "../Cube/Cube.scss";
 
 .App {
-    // center all elements inside in the center of viewport
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
     // set 100% view height, full view port height
     // content inside will be center in the middle of
     // screen both vertically and horizontally
     min-height: 100vh;
-
-    // class modifier for removing flexbox
-    &--no-flex {
-        display: block;
-    }
 }
 
 body {

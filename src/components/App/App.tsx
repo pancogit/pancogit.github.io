@@ -12,19 +12,6 @@ function App() {
     // don't wait loader to finish full opacity animation
     const [renderCube, setRenderCube] = useState(false);
 
-    const appClasses = getAppClasses();
-
-    // change App classes dynamically to remove flexbox layout
-    function getAppClasses() {
-        let appClasses = "App";
-
-        if (renderCube) {
-            appClasses += " App--no-flex";
-        }
-
-        return appClasses;
-    }
-
     // when screen is loaded, wait a little more time and then
     // close the screen component to see opacity transition
     // of the closed screen
@@ -42,7 +29,7 @@ function App() {
     });
 
     return (
-        <div className={appClasses}>
+        <div className="App">
             {!closeLoadScreen && (
                 <LoadingScreen setScreenIsLoaded={setScreenIsLoaded} />
             )}
