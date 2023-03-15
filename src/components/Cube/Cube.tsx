@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type CubeClasses = [string, string, string, string, string, string];
 
@@ -35,12 +35,23 @@ export default function Cube() {
 
     const cubeWrapperRef = useRef<HTMLDivElement>(null);
     const initFrontClasses = useRef(false);
+    const addCubeSidesEventListeners = useRef(false);
+
+    // set to true when first animation with cube rotation is finished
+    const firstAnimationFinished = useRef(false);
+
+    // 17 rems = 17 * 16 px = 272 px
+    const cubeSize = useRef(17 * 16);
+
+    // detect when mouse drag starts (mouse down)
+    // and when is finished (mouse up)
+    const mouseDrag = useRef(false);
 
     // hide all other cube sides which are not in fullscreen
     function hideOtherSides(cubeSideIndex: number) {
         cubeSidesRef.current.forEach((cubeSide, index) => {
             if (cubeSide && index !== cubeSideIndex) {
-                cubeSide.style.visibility = "hidden";
+                cubeSide.classList.add("cube__side--hide");
             }
         });
     }
@@ -122,11 +133,142 @@ export default function Cube() {
                     // for visible page which is in fullscreen
                     setTimeout(() => {
                         setCubeClasses(allClassesOpacity);
+
+                        firstAnimationFinished.current = true;
+
+                        // when window is resized, then update
+                        // coordinates for all cube sides
+                        // add event listener when first animation is finished
+                        window.addEventListener("resize", () =>
+                            updateCubeSidesPositions()
+                        );
                     }, 2500);
                 }, 10);
-            }, 2550);
+            }, 2600);
         }
     }, [cubeClasses]);
+
+    // get out of fullscreen to the screen center animation
+    // for the given cube side
+    const cubeSideMouseDown = useCallback(
+        (event: MouseEvent, cubeSideIndex: number) => {
+            if (!firstAnimationFinished.current) return;
+
+            // mouse drag starts
+            mouseDrag.current = true;
+
+            const cubeSide = cubeSidesRef.current[cubeSideIndex];
+
+            // exit from fullscreen and fade out to the screen center
+            if (cubeSide) {
+                cubeSide.classList.remove("cube__side--opacity-fade-in");
+                cubeSide.classList.add("cube__side--opacity-fade-out");
+                cubeSide.classList.remove("cube__side--fullscreen");
+
+                // remove full opacity and use cube side default
+                // half opacity for centered cube
+                cubeSide.classList.remove("cube__side--full-opacity");
+
+                // show other cube sides with opacity transition
+                cubeSidesRef.current.forEach((cubeSide, index) => {
+                    if (cubeSide) {
+                        // do fade in effect for other cube sides
+                        // and showing them slowly after current side
+                        // exit from fullscreen
+                        setTimeout(() => {
+                            if (index !== cubeSideIndex) {
+                                cubeSide.classList.add(
+                                    "cube__side--opacity-fade-in-quick"
+                                );
+
+                                cubeSide.classList.remove("cube__side--hide");
+                            }
+                        }, 700);
+
+                        // exit from fullscreen for all cube sides to allow
+                        // transitions of whole cube to the screen center
+                        // when window is resized
+                        cubeSide.classList.add("cube__side--exit-fullscreen");
+                    }
+                });
+
+                // set screen centered coordinates for each cube side
+                updateCubeSidesPositions();
+            }
+        },
+        []
+    );
+
+    // go to the fullscreen again from current selected cube side
+    const cubeSideMouseUp = useCallback((event: MouseEvent) => {
+        if (!firstAnimationFinished.current) return;
+
+        // mouse drag ends
+        mouseDrag.current = false;
+    }, []);
+
+    // move mouse around window to detect mouse drag effect
+    // for manually rotating 3d cube
+    const windowMouseMove = useCallback((event: MouseEvent) => {
+        if (!firstAnimationFinished.current) return;
+
+        if (mouseDrag.current) {
+            console.log("Mouse is moving with dragging...");
+        }
+
+        console.log("Window mouse moving");
+    }, []);
+
+    // when mouse is dragged, then get out of the fullscreen
+    // and return cube side to the screen center again
+    // where cube can be rotated in 3d
+    useEffect(() => {
+        if (!addCubeSidesEventListeners.current) {
+            addCubeSidesEventListeners.current = true;
+
+            let cubeSide: HTMLDivElement | null;
+
+            for (let i = 0; i < cubeSidesRef.current.length; i++) {
+                cubeSide = cubeSidesRef.current[i];
+
+                // add event listeners to the each cube side
+                // get out from fullscreen when cube side is clicked
+                if (cubeSide) {
+                    cubeSide.addEventListener("mousedown", (event) =>
+                        cubeSideMouseDown(event, i)
+                    );
+                }
+            }
+
+            // add event listener when mouse is released
+            // it can be done anywhere on window while dragging
+            window.addEventListener("mouseup", (event) =>
+                cubeSideMouseUp(event)
+            );
+
+            // add event listener for mouse moving to detect
+            // mouse drag for the cube rotation
+            window.addEventListener("mousemove", (event) =>
+                windowMouseMove(event)
+            );
+        }
+    }, [cubeSideMouseDown, cubeSideMouseUp, windowMouseMove]);
+
+    // update coordinates for all cube sides
+    function updateCubeSidesPositions() {
+        const bodyHeight = document.body.clientHeight;
+        const bodyWidth = document.body.clientWidth;
+        const cubeSideTop = bodyHeight / 2 - cubeSize.current / 2;
+        const cubeSideLeft = bodyWidth / 2 - cubeSize.current / 2;
+
+        // set current cube side coordinates
+        cubeSidesRef.current.forEach((cubeSide, index) => {
+            if (cubeSide) {
+                cubeSide.style.left = `${cubeSideLeft.toString()}px`;
+                cubeSide.style.top = `${cubeSideTop.toString()}px`;
+            }
+        });
+    }
 
     return (
         <div className="cube" ref={cubeWrapperRef}>

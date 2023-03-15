@@ -5,6 +5,7 @@ $cube-size-half: math.div($cube-size, 2);
 $rotation-side: 90deg;
 
 $animation-time: 2.5s;
+$animation-time-quick: 0.7s;
 
 // 3d axis are used as mathematical descartes system
 // x axis is horizontally, y axis is vertically and
@@ -91,6 +92,7 @@ $animation-time: 2.5s;
     // around front side
     &__front {
         background-color: blue;
+        //background-image: url("https://www.pbs.org/wgbh/nova/media/images/JWST_hero.width-1500.jpg");
     }
 
     // move back side to the "back" by moving backwards
@@ -98,8 +100,10 @@ $animation-time: 2.5s;
     // move side backwards by full cube size to allow
     // other sides to lay on it
     &__back {
-        transform: translateZ(-$cube-size);
         background-color: yellow;
+        //background-image: url("https://blogs.microsoft.com/wp-content/uploads/prod/2020/10/HERO-ART-microsoft_azure_1920x1000_nologo.jpg");
+
+        transform: translateZ(-$cube-size);
     }
 
     // move left side to the "left" by rotating on y axis
@@ -107,6 +111,8 @@ $animation-time: 2.5s;
     // also move element on z axis to lay on other sides
     &__left {
         background-color: black;
+        //background-image: url("https://media.architecturaldigest.com/photos/60426252993888ff3d26b159/master/pass/20-1223%20Voyager%20Station.jpg");
+
         transform: rotateY($rotation-side) translateX($cube-size-half)
             translateZ(-$cube-size-half);
     }
@@ -116,6 +122,8 @@ $animation-time: 2.5s;
     // also move element on z axis to lay on other sides
     &__right {
         background-color: white;
+        //background-image: url("https://www.iaea.org/sites/default/files/styles/original_image_size/public/background-1140x640-sec.jpg?itok=3s8y-xSx");
+
         transform: rotateY($rotation-side) translateX($cube-size-half)
             translateZ($cube-size-half);
     }
@@ -125,6 +133,8 @@ $animation-time: 2.5s;
     // also move element on z axis to lay on the back side
     &__top {
         background-color: green;
+        //background-image: url("https://www.helsinki.fi/assets/drupal/styles/og_images/s3/media-image/43200927-space-shuttle-and-space-station-orbiting-earth.jpg?itok=w3IJ4it6");
+
         transform: rotateX($rotation-side) translateY(-$cube-size-half)
             translateZ($cube-size-half);
     }
@@ -134,6 +144,8 @@ $animation-time: 2.5s;
     // also move element on z axis to lay on the back side
     &__bottom {
         background-color: aqua;
+        //background-image: url("https://imageio.forbes.com/specials-images/imageserve//6296a459f150d611efd94145/0x0.jpg?format=jpg&width=1200");
+
         transform: rotateX($rotation-side) translateY(-$cube-size-half)
             translateZ(-$cube-size-half);
     }
@@ -145,9 +157,26 @@ $animation-time: 2.5s;
             animation: cube-side-opacity-fade-in $animation-time 1 0s linear;
         }
 
+        // change opacity quickly when exit from fullscreen
+        &--opacity-fade-in-quick {
+            animation: cube-side-opacity-intro $animation-time-quick 1 0s linear;
+        }
+
+        // add class modifier for opacity fade out effect
+        // for current cube side in the viewport
+        &--opacity-fade-out {
+            animation: cube-side-opacity-fade-out $animation-time-quick 1 0s
+                linear;
+        }
+
         // set full opacity for visible side of cube which is in fullscreen
         &--full-opacity {
             opacity: 1;
+        }
+
+        // hide cube side with zero opacity
+        &--hide {
+            opacity: 0;
         }
 
         // to animate cube side to the fullscreen use class modifier
@@ -169,6 +198,19 @@ $animation-time: 2.5s;
             // cube coordinates, top and left
             transition: width 1s ease-in-out, height 1s ease-in-out,
                 top 1s ease-in-out, left 1s ease-in-out;
+        }
+
+        &--exit-fullscreen {
+            width: $cube-size;
+            height: $cube-size;
+            position: absolute;
+
+            // transition size of the cube, width and height and
+            // cube coordinates, top and left
+            transition: width $animation-time-quick ease-in-out,
+                height $animation-time-quick ease-in-out,
+                top $animation-time-quick ease-in-out,
+                left $animation-time-quick ease-in-out;
         }
     }
 }
