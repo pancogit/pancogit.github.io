@@ -11,6 +11,11 @@ type CubeRefs = [
     HTMLDivElement | null
 ];
 
+interface MousePositions {
+    x: number;
+    y: number;
+}
+
 const cubeSidesInit: CubeClasses = [
     "cube__front",
     "cube__back",
@@ -42,12 +47,16 @@ export default function Cube() {
     // set to true when first animation with cube rotation is finished
     const firstAnimationFinished = useRef(false);
 
-    // 17 rems = 17 * 16 px = 272 px
-    const cubeSize = useRef(17 * 16);
+    // 11.7 rems = 11.7 * 16 px = 187.2 px - full cube size
+    // 11.7 / 2 rems = 5.85 rem = 11.7 / 2 * 16 px = 93.6 px - half cube size
+    const cubeSizeHalf = useRef(5.85);
 
     // detect when mouse drag starts (mouse down)
     // and when is finished (mouse up)
     const mouseDrag = useRef(false);
+
+    // coordinates for mouse moving
+    const mousePositions = useRef<MousePositions>();
 
     // hide all other cube sides which are not in fullscreen
     function hideOtherSides(cubeSideIndex: number) {
@@ -162,9 +171,6 @@ export default function Cube() {
         (event: MouseEvent, cubeSideIndex: number) => {
             if (!firstAnimationFinished.current) return;
 
-            // mouse drag starts
-            mouseDrag.current = true;
-
             const currentCubeSide = cubeSidesRef.current[cubeSideIndex];
 
             // exit from fullscreen and fade out to the screen center
@@ -215,7 +221,11 @@ export default function Cube() {
                                 cubeWrapperRef.current.style.transform = "";
                             }
 
-                            //cubeRotationExample();
+                            // mouse drag starts when mouse down (click)
+                            // is finished, but with small delay
+                            setTimeout(() => {
+                                mouseDrag.current = true;
+                            }, 100);
                         }, 700);
 
                         // exit from fullscreen for all cube sides to allow
@@ -237,38 +247,48 @@ export default function Cube() {
         mouseDrag.current = false;
     }, []);
 
-    function cubeRotationExample() {
-        let cubeRotationDegree = 0;
-
-        setInterval(() => {
-            if (cubeWrapperRef.current) {
-                // transform: translate3d(-5.85rem, -5.85rem, -5.85rem) rotate3d(1, 1, 1, 45deg);
-                cubeWrapperRef.current.style.transform = `
-                    translate3d(-5.85rem, -5.85rem, -5.85rem) 
-                    rotate3d(1, 1, 1, ${cubeRotationDegree}deg)
-                `;
-
-                cubeRotationDegree += 1;
-
-                console.log(
-                    "transform: ",
-                    cubeWrapperRef.current.style.transform
-                );
-            }
-        }, 10);
-    }
-
     // move mouse around window to detect mouse drag effect
     // for manually rotating 3d cube
     const windowMouseMove = useCallback((event: MouseEvent) => {
         if (!firstAnimationFinished.current) return;
+        if (!mouseDrag.current) return;
 
-        if (mouseDrag.current) {
-            console.log("Mouse is moving with dragging...");
-        }
+        // save current mouse coordinates in local ref
+        // instead of state because it's changing rapidly
+        const mouseX = event.clientX;
+        const mouseY = -event.clientY;
 
-        console.log("Window mouse moving");
+        // save coordinates in local ref
+        mousePositions.current = { x: mouseX, y: mouseY };
+
+        // for rotating cube on X axis use mouse Y coordinates
+        // because when mouse is moving up / down, then it's
+        // rotating cube around X axis
+        // the same is for rotating cube on Y axis using
+        // mouse X coordinates because when mouse is moving
+        // left / right, then it's rotating cube around Y axis
+        // there is no need to rotate cube on Z axis
+        rotateCube(mousePositions.current.y, mousePositions.current.x);
     }, []);
+
+    // rotate cube using given coordinates
+    function rotateCube(x: number, y: number) {
+        if (!cubeWrapperRef.current) return;
+
+        // keep using 3d translation to center cube on screen
+        // while using 3d rotations
+        // for Z axis, don't do any rotation, it's not needed
+        cubeWrapperRef.current.style.transform = `
+            translate3d(
+                -${cubeSizeHalf.current}rem,
+                -${cubeSizeHalf.current}rem, 
+                -${cubeSizeHalf.current}rem
+            )
+            rotateX(${x}deg)
+            rotateY(${y}deg)
+            rotateZ(0deg)
+        `;
+    }
 
     // when mouse is dragged, then get out of the fullscreen
     // and return cube side to the screen center again
@@ -302,22 +322,6 @@ export default function Cube() {
             );
         }
     }, [cubeSideMouseDown, windowMouseUp, windowMouseMove]);
-
-    // update coordinates for all cube sides
-    function updateCubeSidesPositions() {
-        const bodyHeight = document.body.clientHeight;
-        const bodyWidth = document.body.clientWidth;
-        const cubeSideTop = bodyHeight / 2 - cubeSize.current / 2;
-        const cubeSideLeft = bodyWidth / 2 - cubeSize.current / 2;
-
-        // set current cube side coordinates
-        cubeSidesRef.current.forEach((cubeSide, index) => {
-            if (cubeSide) {
-                cubeSide.style.left = `${cubeSideLeft.toString()}px`;
-                cubeSide.style.top = `${cubeSideTop.toString()}px`;
-            }
-        });
-    }
 
     // remove transition on all cube sides while resizing
     // window to avoid cube running across the screen

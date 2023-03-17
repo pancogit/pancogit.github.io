@@ -90,6 +90,11 @@ $animation-time-quick: 0.7s;
         //background-image: url(https://www.ukri.org/wp-content/uploads/2022/02/STFC-240222-SpaceGalaxyStars-GettyImages-1035676256.jpg);
         background-repeat: no-repeat;
         background-size: cover;
+
+        // don't allow any text selection on any cube side
+        // to have natural mouse movement for cube rotation
+        // without selecting anything while doing rotation
+        user-select: none;
     }
 
     // front side stays where it is, it's leading side

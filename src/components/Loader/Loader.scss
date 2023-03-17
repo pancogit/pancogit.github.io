@@ -25,6 +25,9 @@ $border-radius-background: $border-radius-loader - 0.2rem;
     // add small shadow
     box-shadow: 0px 5px 3px 1px #484848bd;
 
+    // don't allow any text selection
+    user-select: none;
+
     &__inner {
         display: flex;
         margin: 0.5rem;
