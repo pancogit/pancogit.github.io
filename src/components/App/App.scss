@@ -1,4 +1,5 @@
 @use "../Cube/Cube.scss";
+@use "../LoadingScreen/LoadingScreen.scss";
 
 .App {
     // set 100% view height, full view port height
@@ -8,21 +9,11 @@
 }
 
 body {
-    // show background image to cover whole screen
-    // and to see whole image properly
-    //background-image: url("../../../public/background.svg");
-    background-size: cover;
-    background-position-x: center;
-    background-position-y: bottom;
-
-    // repeat image on x axis, because it will
-    // animate through horizontal moving
-    background-repeat: repeat-x;
-
-    // uncomment background-image when it's ready
-    // and then remove background-color
-    //background-color: #7d6848;
-    background-image: url(https://wallpapercave.com/wp/wp2082809.jpg);
+    // background gradient for effect the same as loading screen
+    // because on forced scroll up on mobile devices
+    // background image can be seen
+    background: LoadingScreen.$background-fallback;
+    background: LoadingScreen.$background;
 
     // do animation of background image on x axis
     // to do objects moving
@@ -30,6 +21,24 @@ body {
     animation-duration: 10s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
+
+    &.body-background {
+        // show background image to cover whole screen
+        // and to see whole image properly
+        //background-image: url("../../../public/background.svg");
+        background-size: cover;
+        background-position-x: center;
+        background-position-y: bottom;
+
+        // repeat image on x axis, because it will
+        // animate through horizontal moving
+        background-repeat: repeat-x;
+
+        // uncomment background-image when it's ready
+        // and then remove background-color
+        // background-color: #7d6848;
+        background-image: url(https://wallpapercave.com/wp/wp2082809.jpg);
+    }
 }
 
 // move background image on x axis horizontally

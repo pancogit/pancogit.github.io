@@ -1,6 +1,6 @@
 @use "sass:math";
 
-$cube-size: 17rem;
+$cube-size: 11.7rem;
 $cube-size-half: math.div($cube-size, 2);
 $rotation-side: 90deg;
 
@@ -45,6 +45,13 @@ $animation-time-quick: 0.7s;
 
     // animate cube rotation and fade in at the same time
     animation: cube-rotate-fade-in 1 $animation-time linear;
+
+    // do transformation of cube around center
+    // for example, rotate cube in 3d around center,
+    // not around edges
+    &--center-rotation {
+        transform-origin: $cube-size-half $cube-size-half (-$cube-size-half);
+    }
 
     // set cube as group of squares
     &__front,

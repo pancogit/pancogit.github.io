@@ -1,3 +1,11 @@
+$background-fallback: rgb(125, 104, 72);
+
+$background: radial-gradient(
+    circle,
+    rgba(125, 104, 72, 1) 0%,
+    rgba(74, 72, 125, 1) 90%
+);
+
 .loading-screen {
     // spread screen wrapper around whole screen and fix it
     position: fixed;
@@ -18,12 +26,8 @@
     background-color: #7d6848;
 
     // background gradient for effect
-    background: rgb(125, 104, 72);
-    background: radial-gradient(
-        circle,
-        rgba(125, 104, 72, 1) 0%,
-        rgba(74, 72, 125, 1) 90%
-    );
+    background: $background-fallback;
+    background: $background;
 
     // use high stacking content
     z-index: 1000;

@@ -33,6 +33,8 @@ export default function Cube() {
         new Array<HTMLDivElement>(6) as CubeRefs
     );
 
+    const [cubeWrapperClasses, setCubeWrapperClasses] = useState("cube");
+
     const cubeWrapperRef = useRef<HTMLDivElement>(null);
     const initFrontClasses = useRef(false);
     const addCubeSidesEventListeners = useRef(false);
@@ -77,6 +79,7 @@ export default function Cube() {
     }
 
     // add animation on front side of the cube at the beginning
+    // it is first animation
     useEffect(() => {
         if (!initFrontClasses.current) {
             initFrontClasses.current = true;
@@ -110,6 +113,14 @@ export default function Cube() {
                     let allClasses = cubeClasses.slice() as CubeClasses;
                     let allClassesOpacity = cubeClasses.slice() as CubeClasses;
 
+                    // when window is resized, then remove
+                    // all cube sides transitions
+                    // add event listener when first animation
+                    // is finished
+                    window.addEventListener("resize", () => {
+                        removeCubeSidesTransition();
+                    });
+
                     // fullscreen animation with half opacity
                     allClasses[0] = `cube__front 
                         cube__side 
@@ -136,12 +147,9 @@ export default function Cube() {
 
                         firstAnimationFinished.current = true;
 
-                        // when window is resized, then update
-                        // coordinates for all cube sides
-                        // add event listener when first animation is finished
-                        window.addEventListener("resize", () =>
-                            updateCubeSidesPositions()
-                        );
+                        // when first animation is finished, then add class on the cube
+                        // itself to rotate cube around center in 3d, not around edges
+                        setCubeWrapperClasses("cube cube--center-rotation");
                     }, 2500);
                 }, 10);
             }, 2600);
@@ -157,21 +165,33 @@ export default function Cube() {
             // mouse drag starts
             mouseDrag.current = true;
 
-            const cubeSide = cubeSidesRef.current[cubeSideIndex];
+            const currentCubeSide = cubeSidesRef.current[cubeSideIndex];
 
             // exit from fullscreen and fade out to the screen center
-            if (cubeSide) {
-                cubeSide.classList.remove("cube__side--opacity-fade-in");
-                cubeSide.classList.add("cube__side--opacity-fade-out");
-                cubeSide.classList.remove("cube__side--fullscreen");
+            if (currentCubeSide) {
+                // remove all transitions for each cube side
+                removeCubeSidesTransition();
+
+                // if window is resized, then transition is removed
+                // to avoid cube running across the screen
+                // if that's the case, remove inline transition
+                // and use class based one
+                currentCubeSide.style.transition = "";
+
+                currentCubeSide.classList.remove("cube__side--opacity-fade-in");
+                currentCubeSide.classList.add("cube__side--opacity-fade-out");
+                currentCubeSide.classList.remove("cube__side--fullscreen");
 
                 // remove full opacity and use cube side default
                 // half opacity for centered cube
-                cubeSide.classList.remove("cube__side--full-opacity");
+                currentCubeSide.classList.remove("cube__side--full-opacity");
 
                 // show other cube sides with opacity transition
                 cubeSidesRef.current.forEach((cubeSide, index) => {
                     if (cubeSide) {
+                        // remove transition for other cube sides also
+                        cubeSide.style.transition = "";
+
                         // do fade in effect for other cube sides
                         // and showing them slowly after current side
                         // exit from fullscreen
@@ -183,6 +203,19 @@ export default function Cube() {
 
                                 cubeSide.classList.remove("cube__side--hide");
                             }
+
+                            // remove coordinates for all cube sides
+                            // to allow cube rotation around its own axis
+                            removeCubeSidesPositions();
+
+                            // remove inline positioning and transformations
+                            // to allow cube rotation around its own axis
+                            if (cubeWrapperRef.current) {
+                                cubeWrapperRef.current.style.position = "";
+                                cubeWrapperRef.current.style.transform = "";
+                            }
+
+                            //cubeRotationExample();
                         }, 700);
 
                         // exit from fullscreen for all cube sides to allow
@@ -191,21 +224,39 @@ export default function Cube() {
                         cubeSide.classList.add("cube__side--exit-fullscreen");
                     }
                 });
-
-                // set screen centered coordinates for each cube side
-                updateCubeSidesPositions();
             }
         },
         []
     );
 
     // go to the fullscreen again from current selected cube side
-    const cubeSideMouseUp = useCallback((event: MouseEvent) => {
+    const windowMouseUp = useCallback((event: MouseEvent) => {
         if (!firstAnimationFinished.current) return;
 
         // mouse drag ends
         mouseDrag.current = false;
     }, []);
+
+    function cubeRotationExample() {
+        let cubeRotationDegree = 0;
+
+        setInterval(() => {
+            if (cubeWrapperRef.current) {
+                // transform: translate3d(-5.85rem, -5.85rem, -5.85rem) rotate3d(1, 1, 1, 45deg);
+                cubeWrapperRef.current.style.transform = `
+                    translate3d(-5.85rem, -5.85rem, -5.85rem) 
+                    rotate3d(1, 1, 1, ${cubeRotationDegree}deg)
+                `;
+
+                cubeRotationDegree += 1;
+
+                console.log(
+                    "transform: ",
+                    cubeWrapperRef.current.style.transform
+                );
+            }
+        }, 10);
+    }
 
     // move mouse around window to detect mouse drag effect
     // for manually rotating 3d cube
@@ -242,9 +293,7 @@ export default function Cube() {
 
             // add event listener when mouse is released
             // it can be done anywhere on window while dragging
-            window.addEventListener("mouseup", (event) =>
-                cubeSideMouseUp(event)
-            );
+            window.addEventListener("mouseup", (event) => windowMouseUp(event));
 
             // add event listener for mouse moving to detect
             // mouse drag for the cube rotation
@@ -252,7 +301,7 @@ export default function Cube() {
                 windowMouseMove(event)
             );
         }
-    }, [cubeSideMouseDown, cubeSideMouseUp, windowMouseMove]);
+    }, [cubeSideMouseDown, windowMouseUp, windowMouseMove]);
 
     // update coordinates for all cube sides
     function updateCubeSidesPositions() {
@@ -270,8 +319,28 @@ export default function Cube() {
         });
     }
 
+    // remove transition on all cube sides while resizing
+    // window to avoid cube running across the screen
+    function removeCubeSidesTransition() {
+        cubeSidesRef.current.forEach((cubeSide, index) => {
+            if (cubeSide) {
+                cubeSide.style.transition = "none";
+            }
+        });
+    }
+
+    // remove coordinates for all cube sides
+    function removeCubeSidesPositions() {
+        cubeSidesRef.current.forEach((cubeSide, index) => {
+            if (cubeSide) {
+                cubeSide.style.left = "";
+                cubeSide.style.top = "";
+            }
+        });
+    }
+
     return (
-        <div className="cube" ref={cubeWrapperRef}>
+        <div className={cubeWrapperClasses} ref={cubeWrapperRef}>
             {cubeClasses.map((cubeClass, index) => (
                 <div
                     key={index}
