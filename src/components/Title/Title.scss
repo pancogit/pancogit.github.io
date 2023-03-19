@@ -1,0 +1,54 @@
+$animation-time: 0.5s;
+
+.title {
+    // center heading on the bottom of page
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    // don't allow selection of text
+    user-select: none;
+
+    &__heading {
+        font-size: 4rem;
+        font-style: italic;
+        font-family: cursive;
+        font-weight: normal;
+
+        -webkit-text-stroke: 1px #987c7c;
+        color: white;
+
+        // hide heading by default and show them
+        // with fade in when it is changed
+        opacity: 0;
+
+        // fade in heading and do very small translation
+        &--fade-in {
+            opacity: 1;
+
+            animation-name: title-heading-fade-in;
+            animation-duration: $animation-time;
+
+            transition: opacity 0.7s, transform $animation-time;
+        }
+    }
+}
+
+// fade in effect for title heading
+// do small transition from the left to the starting position
+@keyframes title-heading-fade-in {
+    0% {
+        transform: translateX(-0.5rem);
+    }
+
+    100% {
+        transform: translateX(0rem);
+    }
+}

@@ -45,8 +45,6 @@ export default function LoadingScreen({ setScreenIsLoaded }: Props) {
         }
 
         setProgressLevel(progressLevelRef.current);
-
-        console.log("progress bar level = ", progressLevelRef.current);
     }
 
     // increase progress bar percentages by random value after some time

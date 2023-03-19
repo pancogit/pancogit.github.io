@@ -29,6 +29,8 @@ $animation-time-quick: 0.7s;
     top: 50%;
     left: 50%;
 
+    z-index: 20000;
+
     transform: translate3d(
         -$cube-size-half,
         -$cube-size-half,

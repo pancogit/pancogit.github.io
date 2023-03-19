@@ -2,6 +2,8 @@
 @use "./components/Loader/Loader";
 @use "./components/LoadingScreen/LoadingScreen";
 @use "./components/Cube/Cube";
+@use "./components/Page/Page";
+@use "./components/Title/Title";
 
 body {
     margin: 0;

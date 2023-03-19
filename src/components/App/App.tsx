@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import Cube from "../Cube/Cube";
 import LoadingScreen from "../LoadingScreen/LoadingScreen";
+import Page from "../Page/Page";
 
 function App() {
     // flags when loading screen is loaded and when to close
@@ -57,14 +57,14 @@ function App() {
                 <LoadingScreen setScreenIsLoaded={setScreenIsLoaded} />
             )}
 
-            {/* render cube after loading screen disappears */}
-            {/* closeLoadScreen && <Cube /> */}
+            {/* render page with cube after loading screen disappears */}
+            {/* closeLoadScreen && <Page /> */}
 
-            {/* or render cube immediately after loading screen reach 100% */}
-            {/* screenIsLoaded && <Cube /> */}
+            {/* or render page with cube immediately after loading screen reach 100% */}
+            {/* screenIsLoaded && <Page /> */}
 
-            {/* or render cube after quick time before loading screen disappears */}
-            {renderCube && <Cube />}
+            {/* or render page with cube after quick time before loading screen disappears */}
+            {renderCube && <Page />}
         </div>
     );
 }

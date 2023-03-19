@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+interface Props {
+    setCubeSide(cubeSide: CubeSides): void;
+}
+
 type CubeClasses = [string, string, string, string, string, string];
 
 type CubeRefs = [
@@ -25,9 +29,18 @@ const cubeSidesInit: CubeClasses = [
     "cube__bottom",
 ];
 
-const cubeSidesNames = ["Front", "Back", "Left", "Right", "Top", "Bottom"];
+export type CubeSides = "Front" | "Back" | "Left" | "Right" | "Top" | "Bottom";
 
-export default function Cube() {
+const cubeSidesNames: CubeSides[] = [
+    "Front",
+    "Back",
+    "Left",
+    "Right",
+    "Top",
+    "Bottom",
+];
+
+export default function Cube({ setCubeSide }: Props) {
     // save state for each cube side in separate array element
     const [cubeClasses, setCubeClasses] = useState<CubeClasses>(cubeSidesInit);
 
@@ -247,29 +260,209 @@ export default function Cube() {
         mouseDrag.current = false;
     }, []);
 
+    // while cube is rotating, set cube side which is
+    // the most in the view, for example if there are
+    // two cube sides in the view, then set the most one
+    // as current cube side
+    const setCurrentCubeSide = useCallback(() => {
+        if (!cubeSidesRef.current) return;
+        if (!cubeWrapperRef.current) return;
+
+        let transformCube = cubeWrapperRef.current.style.transform;
+
+        // parse X and Y degrees from rotate transformations
+        // for example rotateX(60deg), first parse rotateX/Y
+        // transformation function, then brackets () and
+        // finally degree deg to get the number in string
+        // after that parse string to integer and that's it
+        let rotateXvalue = parseInt(
+            transformCube
+                .split("rotateX")[1]
+                .split("(")[1]
+                .split(")")[0]
+                .split("deg")[0]
+        );
+
+        let rotateYvalue = parseInt(
+            transformCube
+                .split("rotateY")[1]
+                .split("(")[1]
+                .split(")")[0]
+                .split("deg")[0]
+        );
+
+        // set normalized rotation degree value if it's
+        // over 360 degrees or negative
+        rotateXvalue = correctRotationValue(rotateXvalue);
+        rotateYvalue = correctRotationValue(rotateYvalue);
+
+        // get cube side for rotation on X and Y axis
+        let currentCubeSideX = getRotationCubeSideX(rotateXvalue);
+        let currentCubeSideY = getRotationCubeSideY(rotateYvalue);
+
+        // for cube sides on X and Y axis, get cube
+        // side which is in current view
+        const currentCubeSide = getRotationCubeSideXY(
+            currentCubeSideX,
+            currentCubeSideY
+        );
+
+        setCubeSide(currentCubeSide);
+    }, [setCubeSide]);
+
+    // X cube rotation from 0 - 360
+    // ( and ) are exclusive ranges, [ and ] are inclusive
+    // bottom cube side: (45deg, 135deg]
+    // back cube side: (135deg, 225deg]
+    // top cube side: (225deg, 315deg]
+    // front cube side: (315deg, 45deg]
+    function getRotationCubeSideX(rotateXvalue: number) {
+        let currentCubeSideX: CubeSides = "Front";
+
+        if (rotateXvalue > 45 && rotateXvalue <= 135) {
+            currentCubeSideX = "Bottom";
+        } else if (rotateXvalue > 135 && rotateXvalue <= 225) {
+            currentCubeSideX = "Back";
+        } else if (rotateXvalue > 225 && rotateXvalue <= 315) {
+            currentCubeSideX = "Top";
+        } else if (
+            (rotateXvalue > 315 && rotateXvalue <= 360) ||
+            (rotateXvalue >= 0 && rotateXvalue <= 45)
+        ) {
+            currentCubeSideX = "Front";
+        }
+
+        return currentCubeSideX;
+    }
+
+    // Y cube rotation from 0 - 360
+    // ( and ) are exclusive ranges, [ and ] are inclusive
+    // left cube side: (45deg, 135deg]
+    // back cube side: (135deg, 225deg]
+    // right cube side: (225deg, 315deg]
+    // front cube side: (315deg, 45deg]
+    function getRotationCubeSideY(rotateYvalue: number) {
+        let currentCubeSideY: CubeSides = "Front";
+
+        if (rotateYvalue > 45 && rotateYvalue <= 135) {
+            currentCubeSideY = "Left";
+        } else if (rotateYvalue > 135 && rotateYvalue <= 225) {
+            currentCubeSideY = "Back";
+        } else if (rotateYvalue > 225 && rotateYvalue <= 315) {
+            currentCubeSideY = "Right";
+        } else if (
+            (rotateYvalue > 315 && rotateYvalue <= 360) ||
+            (rotateYvalue >= 0 && rotateYvalue <= 45)
+        ) {
+            currentCubeSideY = "Front";
+        }
+
+        return currentCubeSideY;
+    }
+
+    // if cube side on Y axis is front side, that means
+    // cube is rotating near or around X axis and use
+    // coordinates from X axis
+    // otherwise, if cube side on X axis is front side,
+    // that means cube is rotating near or around Y axis
+    // and use coordinates from Y axis instead
+    function getRotationCubeSideXY(
+        currentCubeSideX: CubeSides,
+        currentCubeSideY: CubeSides
+    ) {
+        let currentCubeSide: CubeSides = "Front";
+
+        if (currentCubeSideY === "Front") {
+            currentCubeSide = currentCubeSideX;
+        } else if (currentCubeSideX === "Front") {
+            currentCubeSide = currentCubeSideY;
+        } else {
+            currentCubeSide = currentCubeSideX;
+        }
+
+        return currentCubeSide;
+    }
+
+    // rotation degrees can be more than 360 or negative
+    // in both cases do necessary modulo / addition
+    // to get number between 0 - 360 and to use correct
+    // value for set the current cube side
+    function correctRotationValue(rotationDegree: number) {
+        if (rotationDegree === 360) return 0;
+
+        // modulo by 360 to get real degree value
+        if (rotationDegree > 360) {
+            return rotationDegree % 360;
+        }
+
+        // if degree is negative, then set appropriate
+        // positive degree value
+        if (rotationDegree < 0) {
+            let modulo = rotationDegree;
+
+            // do modulo if number of higher than -360
+            if (-rotationDegree > 360) {
+                modulo = rotationDegree % 360;
+            }
+
+            let positiveDegree = modulo + 360;
+            let degree = positiveDegree;
+
+            // do another modulo if it's very high
+            if (positiveDegree > 360) {
+                degree = positiveDegree % 360;
+            }
+
+            return degree;
+        }
+
+        // otherwise, just return normal degree value
+        return rotationDegree;
+    }
+
     // move mouse around window to detect mouse drag effect
     // for manually rotating 3d cube
-    const windowMouseMove = useCallback((event: MouseEvent) => {
-        if (!firstAnimationFinished.current) return;
-        if (!mouseDrag.current) return;
+    const windowMouseMove = useCallback(
+        (event: MouseEvent) => {
+            if (!firstAnimationFinished.current) return;
+            if (!mouseDrag.current) return;
 
-        // save current mouse coordinates in local ref
-        // instead of state because it's changing rapidly
-        const mouseX = event.clientX;
-        const mouseY = -event.clientY;
+            // save current mouse coordinates in local ref
+            // instead of state because it's changing rapidly
+            // for y axis use inverse path, because coordinate
+            // system starts on top left corner for css rotations
+            let mouseX = event.clientX;
+            let mouseY = -event.clientY;
 
-        // save coordinates in local ref
-        mousePositions.current = { x: mouseX, y: mouseY };
+            // first mouse move is detected
+            // set difference in degree step from the
+            // centered cube to the first cube rotation
+            if (!mousePositions.current && cubeWrapperRef.current) {
+                const cubeRect = cubeWrapperRef.current.getBoundingClientRect();
 
-        // for rotating cube on X axis use mouse Y coordinates
-        // because when mouse is moving up / down, then it's
-        // rotating cube around X axis
-        // the same is for rotating cube on Y axis using
-        // mouse X coordinates because when mouse is moving
-        // left / right, then it's rotating cube around Y axis
-        // there is no need to rotate cube on Z axis
-        rotateCube(mousePositions.current.y, mousePositions.current.x);
-    }, []);
+                // subtract x axis of corner to get first delta distance
+                // for x, and also do the same for y axis except that's
+                // already negative and just use positive adding
+                mouseX -= cubeRect.x;
+                mouseY += cubeRect.y;
+            }
+
+            // save coordinates in local ref
+            mousePositions.current = { x: mouseX, y: mouseY };
+
+            // for rotating cube on X axis use mouse Y coordinates
+            // because when mouse is moving up / down, then it's
+            // rotating cube around X axis
+            // the same is for rotating cube on Y axis using
+            // mouse X coordinates because when mouse is moving
+            // left / right, then it's rotating cube around Y axis
+            // there is no need to rotate cube on Z axis
+            rotateCube(mousePositions.current.y, mousePositions.current.x);
+
+            setCurrentCubeSide();
+        },
+        [setCurrentCubeSide]
+    );
 
     // rotate cube using given coordinates
     function rotateCube(x: number, y: number) {
